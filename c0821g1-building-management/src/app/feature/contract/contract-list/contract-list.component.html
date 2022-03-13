@@ -1,0 +1,159 @@
+<a routerLink="/home">Trang chủ</a>
+
+<h2 class="text-center m-5 font-google-2">Danh sách hợp đồng</h2>
+<div class="container">
+
+  <!--  SEARCH-->
+
+  <div class="row">
+    <div class="col-lg-2"></div>
+    <div class="col-lg-10">
+      <form #myNgForm="ngForm">
+        <div class=" search row d-flex justify-content-end align-items-center mb-4 text-right float-right">
+          <div class="col-lg-2 form-group" style="text-align: center">
+            <input [(ngModel)]="name" class="form-control" type="text" name="name" placeholder="Tên" >
+          </div>
+          <div class="col-lg-2 form-group" style="text-align: right">
+            <div style="text-align: center">
+              <input [(ngModel)]="code" class="form-control" id="code" type="text" name="code"
+                     placeholder="Mã mặt bằng">
+            </div>
+          </div>
+
+          <div class="col-lg-2 form-group" style="text-align: right">
+            <div style="text-align: center">
+              <input [(ngModel)]="start" class="form-control" id="start" type="date" name="start"
+                     placeholder="ngày bắt đầu">
+            </div>
+          </div>
+          <!--          <div class="col-lg-2 form-group" style="text-align: right">-->
+          <!--            <input [(ngModel)]="start1" class="form-control" id="start1" type="date" name="end"-->
+          <!--                   placeholder="Ngày kết thúc">-->
+          <!--          </div>-->
+
+          <div class="col-lg-2 form-group" style="text-align: right">
+            <div style="text-align: center">
+              <input [(ngModel)]="end" class="form-control" id="end" type="date" name="start"
+                     placeholder="ngày bắt đầu">
+            </div>
+          </div>
+          <!--          <div class="col-lg-2 form-group" style="text-align: right">-->
+          <!--            <input [(ngModel)]="end1" class="form-control" id="end1" type="date" name="end"-->
+          <!--                   placeholder="Ngày kết thúc">-->
+          <!--          </div>-->
+
+          <div class="col-lg-2 form-group" style="text-align: right">
+            <button (click)="onSubmit()" class="btn btn-light mt-xl-1 btn-outline-success"
+                    style="border-radius: 5px">
+              <i class="fa-solid fa-magnifying-glass"></i> Tìm Kiếm
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="row">
+    <button (click)="toCreateForm()" type="button" class="add-button btn-lg" style="width: 150px; margin-bottom: 8px"><i class="fa-solid fa-plus me-lg-2"></i>Tạo mới
+    </button>
+  </div>
+  <!--  <a routerLink="/contract/create"><i class="fa-solid fa-plus me-lg-2"></i>Tạo mới</a>-->
+  <ng-container *ngIf="message !== '';else elseBlock">
+
+    <h1 style="color: red; text-align: center; width: 100%; margin-top: 50px">{{message}}</h1>
+  </ng-container>
+  <ng-template #elseBlock>
+    <div class="row">
+      <table class="table table-hover bg-light">
+        <thead class="text-center font-google-1 fs-5 text-overflow align-middle"
+               style="background-color: #efb578">
+        <tr style="color: #452d14">
+          <th scope="col" style="text-align: center">Stt</th>
+          <th scope="col" style="text-align: center">Mã hợp đồng</th>
+          <th scope="col" style="text-align: center">Mã mặt bằng</th>
+          <th scope="col" style="text-align: left">Tên khách hàng</th>
+          <th scope="col" style="text-align: center">CMND</th>
+          <th scope="col" style="text-align: center">Ngày bắt đầu</th>
+          <th scope="col" style="text-align: center">Ngày kết thúc</th>
+          <th scope="col" style="text-align: left">Kỳ hạn (tháng)</th>
+          <th scope="col" style="text-align: center">Đang thuê</th>
+          <th scope="col" style="text-align: center">Chức Năng</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="text-overflow align-middle" *ngFor="let s of contract; index as i ">
+          <th scope="row">{{i + 1}}</th>
+          <td style="text-align: center">{{s.contractCode}}</td>
+          <td style="text-align: center">{{s.spaces.spaceCode}}</td>
+          <td style="text-align: left">{{s.customer.customerName}}</td>
+          <td style="text-align: center">{{s.customer.customerIdentifyNumber}}</td>
+          <td style="text-align: center">{{s.contractDateStart | date : 'dd/MM/yyyy'}}</td>
+          <td style="text-align: center">{{s.contractDateEnd | date : 'dd/MM/yyyy'}}</td>
+          <td style="text-align: center">{{s.contractExpired}}</td>
+          <td style="text-align: center" *ngIf="s.checkFlag >= 0; else blockContract ">
+            <i class="fa-solid fa-square-check"></i>
+          </td>
+
+          <ng-template #blockContract>
+            <td style="text-align: center"><i class="fa-solid fa-square"></i></td>
+          </ng-template>
+          <td>
+            <button (click)="editContract(s.contractId)" type="button" class="btn btn-light me-3 edit-button"
+            >
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button [disabled]="checkDeleteFlag == true" type="submit" class="btn btn-light delete-button"
+                    (click)="openDialog(s.contractId)">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!--PAGINATION-->
+
+    <!--pagination-->
+    <div class="align-content-center">
+      <div class="me-5 pe-4 ">
+        <ul class="pagination pagination-sm justify-content-end  pagination-lg" style="margin:20px 0">
+          <div *ngIf="this.page >0 then previous"></div>
+          <ng-template #previous>
+            <li class="page-item">
+              <button
+                (click)="previousClick(1)" class="page-link" type="button">Trang trước
+              </button>
+            </li>
+          </ng-template>
+          <li class="page-item">
+            <input class="page-link" type="number" value="1" min="1" [max]="totalPages"
+                   placeholder="{{totalPages}}" aria-label="Username" [value]="page + 1"
+                   aria-describedby="basic-addon1"
+                   (change)="findPaginnation($event.target.value)">
+          </li>
+          <li class="page-item ">
+            <span class="input-group-text page-link">{{page + 1}}/{{totalPages}}</span>
+          </li>
+          <div *ngIf="this.page  < this.totalPages-1 then nexts "></div>
+          <ng-template #nexts>
+            <li class="page-item">
+              <button (click)="nextClick(1)" class="page-link" type="button">Trang sau</button>
+            </li>
+          </ng-template>
+        </ul>
+      </div>
+    </div>
+    <!--pagination-->
+  </ng-template>
+
+</div>
+<!--</div>-->
+<ngx-bootstrap-spinner
+  bdColor="rgba(51,51,51,0.8)"
+  size="default"
+  color="#fff"
+  type="border"
+  loadingText="Đang tải dữ liệu..."
+>
+</ngx-bootstrap-spinner>
